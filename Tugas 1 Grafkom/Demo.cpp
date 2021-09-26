@@ -131,42 +131,6 @@ void Demo::BuildColoredTable() {
 		0.9,  0.2,  0.5, 1, 1,  // 22
 		-0.5, 0.2,  0.5, 0, 1, // 23
 
-		//============== kaki 1
-		//front
-		-0.5, 0.2, 0.5, 0, 0,  // 24
-		 0.9, 0.2, 0.5, 1, 0,  // 25
-		 0.9, 0.5, 0.5, 1, 1,  // 26
-		-0.5, 0.5, 0.5, 0, 1,  // 27
-
-		// right
-		0.9,  0.5,  0.5, 0, 0,  // 28
-		0.9,  0.5, -0.5, 1, 0,  // 29
-		0.9,  0.2, -0.5, 1, 1,  // 30
-		0.9,  0.2,  0.5, 0, 1,  // 31
-
-		// back
-		-0.5,  0.2, -0.5, 0, 0, // 32
-		0.9,   0.2, -0.5, 1, 0, // 33
-		0.9,   0.5, -0.5, 1, 1, // 34
-		-0.5,  0.5, -0.5, 0, 1, // 35
-
-		// left
-		-0.5,  0.2, -0.5, 0, 0, // 36
-		-0.5,  0.2,  0.5, 1, 0, // 37
-		-0.5,  0.5,  0.5, 1, 1, // 38
-		-0.5,  0.5, -0.5, 0, 1, // 39
-
-		// upper
-		0.9, 0.5,  0.5, 0, 0,   // 40
-		-0.5, 0.5,  0.5, 1, 0,  // 41
-		-0.5, 0.5, -0.5, 1, 1,  // 42
-		0.9, 0.5, -0.5, 0, 1,   // 43
-
-		// bottom
-		-0.5, 0.2, -0.5, 0, 0, // 44
-		0.9,  0.2, -0.5, 1, 0,  // 45
-		0.9,  0.2,  0.5, 1, 1,  // 46
-		-0.5, 0.2,  0.5, 0, 1, // 47
 	};
 
 	unsigned int indices[] = {
@@ -176,14 +140,7 @@ void Demo::BuildColoredTable() {
 		12, 14, 13, 12, 15, 14,  // left
 		16, 18, 17, 16, 19, 18,  // upper
 		20, 22, 21, 20, 23, 22,   // bottom
-		//kaki
-		24, 25, 26, 24, 26, 27,		//front kaki
-		28, 29, 30, 28, 30, 31,		//right kaki
-		32, 33, 34, 32, 34, 35,		//back kaki
-		36, 38, 37, 36, 39, 38,		//left kaki
-		40, 42, 41, 41, 44, 43,		//upper kaki
-		44, 46, 45, 44, 47, 46		//bottom kaki
-
+		
 	};
 
 	glGenVertexArrays(1, &VAO);
@@ -228,7 +185,77 @@ void Demo::DrawColoredTable()
 
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
-	glDrawElements(GL_TRIANGLES, 72, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+
+void Demo::BuildColoredPlane()
+{
+	// Load and create a texture 
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int width, height;
+	unsigned char* image = SOIL_load_image("marble.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Build geometry
+	GLfloat vertices[] = {
+		// format position, tex coords
+		// bottom
+		-50.0, -0.5, -50.0,  0,  0,
+		 50.0, -0.5, -50.0, 50,  0,
+		 50.0, -0.5,  50.0, 50, 50,
+		-50.0, -0.5,  50.0,  0, 50,
+
+
+	};
+
+	GLuint indices[] = { 0,  2,  1,  0,  3,  2 };
+
+	glGenVertexArrays(1, &VAO2);
+	glGenBuffers(1, &VBO2);
+	glGenBuffers(1, &EBO2);
+
+	glBindVertexArray(VAO2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO2);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+	glEnableVertexAttribArray(0);
+	// TexCoord attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0); // Unbind VAO
+}
+
+void Demo::DrawColoredPlane()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 1);
+
+	glBindVertexArray(VAO2); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
@@ -336,82 +363,13 @@ void Demo::DrawColoredKakiMeja()
 {
 	glUseProgram(shaderProgram);
 
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, texture3);
-	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 2);
 
 	glBindVertexArray(VAO3); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindVertexArray(0);
-}
-
-void Demo::BuildColoredPlane()
-{
-	// Load and create a texture 
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height;
-	unsigned char* image = SOIL_load_image("marble.png", &width, &height, 0, SOIL_LOAD_RGBA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Build geometry
-	GLfloat vertices[] = {
-		// format position, tex coords
-		// bottom
-		-50.0, -0.5, -50.0,  0,  0,
-		 50.0, -0.5, -50.0, 50,  0,
-		 50.0, -0.5,  50.0, 50, 50,
-		-50.0, -0.5,  50.0,  0, 50,
-
-
-	};
-
-	GLuint indices[] = { 0,  2,  1,  0,  3,  2 };
-
-	glGenVertexArrays(1, &VAO2);
-	glGenBuffers(1, &VBO2);
-	glGenBuffers(1, &EBO2);
-
-	glBindVertexArray(VAO2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO2);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
-	glEnableVertexAttribArray(0);
-	// TexCoord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0); // Unbind VAO
-}
-
-void Demo::DrawColoredPlane()
-{
-	glUseProgram(shaderProgram);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 1);
-
-	glBindVertexArray(VAO2); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
