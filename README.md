@@ -16,3 +16,9 @@ Tugas 2:
 Tambahkan Manipulasi Kamera dan Gerakkan Objek 3D yang sudah dibuat di Tugas 1. 
 
 Deadline Minggu, 31 Oktober 2021 Pukul 23:59.
+
+Tugas 3:
+
+Tambahkan Implementasi Lighting Maps dan Multiple Lighting (Directional Light + Point Light + Spot Light) untuk objek 3D yang sudah dibuat di Tugas 2. 
+
+Deadline Minggu, 21 November 2021 Pukul 23:59.
